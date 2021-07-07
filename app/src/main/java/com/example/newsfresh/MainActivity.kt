@@ -1,10 +1,11 @@
 package com.example.newsfresh
 
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.android.volley.Request
-
 import com.android.volley.toolbox.JsonObjectRequest
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -24,7 +25,7 @@ class MainActivity : AppCompatActivity(), NewsItemClicked {
     private  fun fetchData() {
         val url="https://newsapi.org/v2/everything?q=keyword&apiKey=de7e587637d74772b311fc6fd7fe11e2"
         val jsonObjectRequest = object:JsonObjectRequest(
-            Request.Method.GET,
+            Method.GET,
             url,
             null,
             {
@@ -44,14 +45,15 @@ class MainActivity : AppCompatActivity(), NewsItemClicked {
                 mAdapter.updateNews(newsArray)
             },
             {
-
+                it.message?.let { t-> Log.d("MainActivity", t)}
             }
 
         )
         {
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = HashMap<String, String>()
-                headers["X-Api-Key"] = "de7e587637d74772b311fc6fd7fe11e2/v2/top-headlines"
+                headers["Content-Type"] = "application/json; charset=UTF-8"
+                headers["User-Agent"] = "Mozilla/5.0"
                 return headers
             }
         }
@@ -59,5 +61,10 @@ class MainActivity : AppCompatActivity(), NewsItemClicked {
     }
 
     override fun onItemClicked(item: News) {
+
+        val builder = CustomTabsIntent.Builder()
+        val customTabsIntent= builder.build()
+        customTabsIntent.launchUrl(this,Uri.parse(item.url))
+
     }
 }
